@@ -1,0 +1,120 @@
+package dam108t2_excepciones;
+
+import java.util.Random;
+import java.util.ArrayList;
+
+public class _MasterMind2 {
+
+    public String secreto;
+    public int numIntento;
+    public static final int TAM_NUMERO = 4;
+    public static final int MAX_INTENTOS = 10;
+    public ArrayList<resultado2> listaIntentos;
+
+    _MasterMind2() {
+        String cad;
+        do {
+            cad = CadenaAlAzar(TAM_NUMERO);
+        } while (CadenaConDuplicados(cad));
+        this.secreto = cad;
+        this.numIntento = 0;
+        listaIntentos = new ArrayList<>();
+    }
+
+    public resultado2 comprobar(String i) throws wrongInputNumberEX, notDigitEX{
+        int b = 0, m = 0;
+        boolean gano = false, finTurnos = false;
+        if (CadenaConDuplicados(i) || i.length() != TAM_NUMERO) throw new wrongInputNumberEX(); //lanzamos la Excepcion
+        
+        for (int cont = 0; cont < i.length(); cont++) {
+            char letra = i.charAt(cont);
+            if (!Character.isDigit(letra)) throw new notDigitEX(); //lanzamos la Excepcion
+            if (letra == secreto.charAt(cont)) {
+                b++;
+            } else if (secreto.indexOf(letra) != -1) {
+                m++;
+            }
+        }
+        if (b == TAM_NUMERO) {
+            gano = true;
+        }
+        if (++this.numIntento == MAX_INTENTOS) {
+            finTurnos = true;
+        }
+        resultado2 r = new resultado2(i, b, m, gano, finTurnos);
+        this.listaIntentos.add(r);
+        return r;
+    }
+
+    private boolean CadenaConDuplicados(String cad) {
+        for (int i = 0; i < cad.length(); i++) {
+            char c = cad.charAt(i);
+            if (cad.indexOf(c, i + 1) != -1) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private String CadenaAlAzar(int n) {
+        Random r = new Random();
+        String cad = "";
+        int x;
+        for (int i = 0; i < n; i++) {
+            x = r.nextInt(10);
+            cad += Integer.toString(x);
+        }
+        return cad;
+    }
+
+    public void pintarConsola() {
+        System.out.println("\nN  intento  ok mal");
+        System.out.println("==================");
+        for (int i = 0; i < this.listaIntentos.size(); i++) {
+            System.out.printf("%02d %s     %d   %d\n",
+                    i + 1,
+                    this.listaIntentos.get(i).intento,
+                    this.listaIntentos.get(i).bienColocados,
+                    this.listaIntentos.get(i).malColocados);
+        }
+        System.out.println("..................");
+    }
+
+} // fin clase
+
+class resultado2 {
+
+    String intento;
+    int bienColocados;
+    int malColocados;
+    boolean gano;
+    boolean sinMasTurnos;
+
+    public resultado2(String intento, int bienColocados, int malColocados,
+            boolean gano, boolean sinMasTurnos) {
+        this.intento = intento;
+        this.bienColocados = bienColocados;
+        this.malColocados = malColocados;
+        this.gano = gano;
+        this.sinMasTurnos = sinMasTurnos;
+    }
+
+    resultado2() {
+    }
+    
+
+}
+
+class wrongInputNumberEX extends Exception {
+    @Override
+    public String getMessage (){
+        return "Te has pasado con la longitud o contiene caracteres repetidos";
+    }
+}
+
+class notDigitEX extends Exception{
+    @Override
+    public String getMessage (){
+        return "Solo puedes introducir numeros";
+    }
+}
